@@ -7,3 +7,5 @@ psycopg2-binary
 fastapi
 uvicorn
 discord
+mysqlclient
+mysql-connector-python
