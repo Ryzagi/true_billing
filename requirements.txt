@@ -1,0 +1,9 @@
+langchain
+openai
+tiktoken
+aiogram
+aioschedule
+psycopg2-binary
+fastapi
+uvicorn
+discord
