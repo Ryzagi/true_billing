@@ -1,15 +1,14 @@
 import argparse
 import asyncio
 import os
-import aioschedule
-import urllib.parse
 
-
+from pathlib import Path
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import KeyboardButton
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 from langchain import OpenAI, SQLDatabase, SQLDatabaseChain
-
+from bot_utils import format_date
+from sql import SQLConnection
 
 
 def parse_args():
@@ -27,6 +26,9 @@ def parse_args():
     return parser.parse_args()
 
 
+os.environ['SQL_CONFIG_PATH'] = 'configs/sql_config.json'
+SQL_DB = SQLConnection.from_config(Path(os.environ.get('SQL_CONFIG_PATH')))
+
 args = parse_args()
 os.environ["OPENAI_API_KEY"] = args.openai_api_key
 bot = Bot(token=args.telegram_token)
@@ -38,6 +40,7 @@ RESTART_KEYBOARD = types.ReplyKeyboardMarkup(
 
 # chat history for each session
 user_histories = {}
+
 
 @dispatcher.message_handler(commands=["start"])
 async def start(message: types.Message):
@@ -80,19 +83,9 @@ async def handle_message(message: types.Message) -> None:
     #    template=template
     #)
 
-    tables = ['patients', 'patient_visit', 'patient_visit_cpt', 'patient_visit_icd']
+    tables = ['patients', 'facility', 'provider_facility', 'patient_visit', 'patient_visit_cpt', 'patient_visit_icd']
 
-
-    host = '199.244.89.204'
-    user = 'Pavel'
-    password = 'Re@d$nly@123'
-    database = 'irehabpt_rehab'
-
-    encoded_password = urllib.parse.quote_plus(password)
-    # Create the URI for the MySQL database
-    uri = f"mysql://{user}:{encoded_password}@{host}/{database}"
-
-    db = SQLDatabase.from_uri(uri, include_tables=tables)
+    db = SQLDatabase.from_uri(SQL_DB.get_uri(), include_tables=tables)
     model = 'text-davinci-003'  # 'gpt-3.5-turbo'
 
     # define model with history
@@ -102,28 +95,19 @@ async def handle_message(message: types.Message) -> None:
         database=db,
         verbose=True,
         memory=current_history,
+        top_k=10
     )
 
     # generate response
     await bot.send_chat_action(message.from_user.id, action=types.ChatActions.TYPING)
-    await bot.send_message(message.from_user.id, text=chatgpt_chain.run(query=message.text))
-
-
-async def serialize_conversation_task():
-    # CONVERSATIONS_DB.serialize_conversations()
-    pass
-
-
-async def scheduler():
-    aioschedule.every(60).seconds.do(serialize_conversation_task)
-    while True:
-        await aioschedule.run_pending()
-        await asyncio.sleep(1)
-
-
-async def on_startup(dispatcher):
-    asyncio.create_task(scheduler())
+    formatted_msg = format_date(message.text)
+    print('\n\n\n', formatted_msg, '\n\n\n')
+    try:
+        await bot.send_message(message.from_user.id, text=chatgpt_chain.run(formatted_msg))
+    except Exception as e:
+        print(e)
+        await bot.send_message(message.from_user.id, text="Please, provide full date")
 
 
 if __name__ == "__main__":
-    executor.start_polling(dispatcher, skip_updates=False, on_startup=on_startup)
+    executor.start_polling(dispatcher, skip_updates=False)
