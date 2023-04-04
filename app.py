@@ -1,22 +1,14 @@
-
-import asyncio
-import csv
 import os
 from pathlib import Path
-
-import MySQLdb
-
+from typing import Dict
 
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 from langchain import OpenAI, SQLDatabase, SQLDatabaseChain, PromptTemplate
-from openai import InvalidRequestError
-from starlette.responses import PlainTextResponse
-
 from bot_utils import format_date
 from data import Message
-from pen import SQLDatabaseChainV2, SQLDatabaseV2
+from langchainV2 import SQLDatabaseChainV2, SQLDatabaseV2
 from sql import SQLConnection
-from datetime import datetime
+
 from fastapi import FastAPI, Response, status, HTTPException
 os.environ['SQL_CONFIG_PATH'] = 'configs/sql_config.json'
 
@@ -29,7 +21,7 @@ user_histories = {}
 
 
 @app.post(MESSAGE_ENDPOINT)
-async def handle_message(request: Message) -> PlainTextResponse:
+async def handle_message(request: Message) -> Dict:
 
     if request.user_id not in user_histories:
         user_histories[request.user_id] = ConversationBufferWindowMemory(k=3)
@@ -77,7 +69,6 @@ following tables: {{table_info}} Question: {{input}} """
             prompt=prompt,
             database=db,
             verbose=True,
-            #memory=current_history,
             top_k=10,
             return_intermediate_steps=True,
 
@@ -85,26 +76,5 @@ following tables: {{table_info}} Question: {{input}} """
 
     formatted_msg = format_date(request.message)
     chatbot_response = chatgpt_chain(formatted_msg)
-
-    #print(chatbot_response)
-    #try:
-    #    if len(chatbot_response['result']) == 0:
-    #        with open('output.csv', 'w', newline='') as csvfile:
-    #            writer = csv.writer(csvfile)
-    #            writer.writerow(chatbot_response['intermediate_steps'][-1].split('\n'))
-    #            return PlainTextResponse('CSV file saved')
-    #except InvalidRequestError:
-    #    if len(chatbot_response['result']) == 0:
-    #        with open('output.csv', 'w', newline='') as csvfile:
-    #            writer = csv.writer(csvfile)
-    #            writer.writerow(chatbot_response['intermediate_steps'][-1].split('\n'))
-    #            return PlainTextResponse('CSV file saved')
-    #else:
-    #    try:
-    #        return PlainTextResponse(chatbot_response['result'])
-    #    except MySQLdb.ProgrammingError:
-    #        return PlainTextResponse("Please, rephrase your question")
-    #    except Exception as e:
-    #        return PlainTextResponse("Please, provide full date")
     return chatbot_response
 
