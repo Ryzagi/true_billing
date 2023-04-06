@@ -1,7 +1,9 @@
 import os
+import os.path
+import csv
+
 from pathlib import Path
 from typing import Dict
-
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 from langchain import OpenAI, SQLDatabase, SQLDatabaseChain, PromptTemplate
 from bot_utils import format_date
@@ -76,5 +78,50 @@ following tables: {{table_info}} Question: {{input}} """
 
     formatted_msg = format_date(request.message)
     chatbot_response = chatgpt_chain(formatted_msg)
+
+    # CSV SAVING
+
+    #filename = 'logs.csv'
+    ## check if file exist, then append new rows
+    #if os.path.isfile(filename):
+    #    with open(filename, 'a', newline='') as file:
+    #        fieldnames = ["input_text", 'answer', 'sql_result', "sql_cmd", 'csv_file']
+    #        writer = csv.DictWriter(file, fieldnames=fieldnames)
+    #        writer.writerow({"input_text":chatbot_response["input_text"],
+    #                        "answer": chatbot_response["answer"],
+    #                         "sql_result": chatbot_response["sql_result"],
+    #                         'sql_cmd': chatbot_response["sql_cmd"],
+    #                         "csv_file": chatbot_response["csv_file"]
+    #                         }
+    #                    )
+    #else:
+    #    # create new file and write headers and rows
+    #    with open(filename, 'w', newline='') as file:
+    #        fieldnames = ["input_text", 'answer', 'sql_result', "sql_cmd", 'csv_file']
+    #        writer = csv.DictWriter(file, fieldnames=fieldnames)
+    #        writer.writeheader()
+    #        writer.writerow({"input_text": chatbot_response["input_text"],
+    #                         "answer": chatbot_response["answer"],
+    #                         "sql_result": chatbot_response["sql_result"],
+    #                         'sql_cmd': chatbot_response["sql_cmd"],
+    #                         "csv_file": chatbot_response["csv_file"]
+    #                         }
+    #
+    #                        )
+
+    # TXT SAVING
+    filename = 'logs.txt'
+
+    if os.path.isfile(filename):
+        with open(filename, 'a') as file:
+            file.write(chatbot_response["input_text"] + "\n" + chatbot_response["answer"] + "\n" +
+                       chatbot_response["sql_result"] + "\n" + chatbot_response["sql_cmd"] + "\n" +
+                       chatbot_response["csv_file"] + "\n\n")
+    else:
+        with open(filename, 'w') as file:
+            file.write("input_text\tanswer\tsql_result\tsql_cmd\tcsv_file\n")
+            file.write(chatbot_response["input_text"] + "\n" + chatbot_response["answer"] + "\n" +
+                       chatbot_response["sql_result"] + "\n" + chatbot_response["sql_cmd"] + "\n" +
+                       chatbot_response["csv_file"] + "\n\n")
     return chatbot_response
 
