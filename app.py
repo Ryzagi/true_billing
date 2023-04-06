@@ -110,7 +110,7 @@ following tables: {{table_info}} Question: {{input}} """
     #                        )
 
     # TXT SAVING
-    filename = 'logs.txt'
+    filename = 'logging.txt'
 
     if os.path.isfile(filename):
         with open(filename, 'a') as file:
