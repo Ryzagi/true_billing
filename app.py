@@ -114,14 +114,13 @@ following tables: {{table_info}} Question: {{input}} """
 
     if os.path.isfile(filename):
         with open(filename, 'a') as file:
-            file.write(chatbot_response["input_text"] + "\n" + chatbot_response["answer"] + "\n" +
-                       chatbot_response["sql_result"] + "\n" + chatbot_response["sql_cmd"] + "\n" +
+            file.write(chatbot_response["input_text"] + "\n" + chatbot_response["sql_cmd"] + "\n" +
+                       chatbot_response["sql_result"] + "\n" + chatbot_response["answer"] + "\n" +
                        chatbot_response["csv_file"] + "\n\n")
     else:
         with open(filename, 'w') as file:
-            file.write("input_text\tanswer\tsql_result\tsql_cmd\tcsv_file\n")
-            file.write(chatbot_response["input_text"] + "\n" + chatbot_response["answer"] + "\n" +
-                       chatbot_response["sql_result"] + "\n" + chatbot_response["sql_cmd"] + "\n" +
+            file.write(chatbot_response["input_text"] + "\n" + chatbot_response["sql_cmd"] + "\n" +
+                       chatbot_response["sql_result"] + "\n" + chatbot_response["answer"] + "\n" +
                        chatbot_response["csv_file"] + "\n\n")
     return chatbot_response
 
