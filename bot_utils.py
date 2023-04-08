@@ -20,6 +20,7 @@ def format_date(text):
                 text = text.replace(date_string, dt.strftime("%Y-%m-%d"))
                 break
             except ValueError as e:
-                print("\n\n", str(e), "\n\n")
+                pass
+                #print("\n\n", str(e), "\n\n")
 
     return text
