@@ -39,13 +39,20 @@ class SQLDatabaseChainV2(SQLDatabaseChain):
         sql_cmd = llm_chain.predict(**llm_inputs)
         intermediate_steps.append(sql_cmd)
         self.callback_manager.on_text(sql_cmd, color="green", verbose=self.verbose)
-        result = self.database.run(sql_cmd)
-        sql_result = str(result)
-        intermediate_steps.append(str(result))
-        self.callback_manager.on_text("\nSQLResult: ", verbose=self.verbose)
-        self.callback_manager.on_text(str(result), color="yellow", verbose=self.verbose)
-        # If return direct, we just set the final result equal to the sql query
-
+        try:
+            result = self.database.run(sql_cmd)
+            sql_result = str(result)
+            intermediate_steps.append(str(result))
+            self.callback_manager.on_text("\nSQLResult: ", verbose=self.verbose)
+            self.callback_manager.on_text(str(result), color="yellow", verbose=self.verbose)
+            # If return direct, we just set the final result equal to the sql query
+        except Exception as e:
+            return {"answer": "Error in running SQL command!",
+                "csv_file": csv_file,
+                "sql_result": str(e),
+                "sql_cmd": sql_cmd,
+                "input_text": question
+                }
         if self.return_direct:
             final_result = str(result)
 
