@@ -4,6 +4,8 @@ from typing import Dict, Any, Optional, List
 import pandas as pd
 from langchain import SQLDatabaseChain, LLMChain, SQLDatabase
 
+from bot_utils import replace_text
+
 
 class SQLDatabaseChainV2(SQLDatabaseChain):
 
@@ -73,12 +75,12 @@ class SQLDatabaseChainV2(SQLDatabaseChain):
         chain_result: Dict[str, Any] = {self.output_key: final_result}
         if self.return_intermediate_steps:
             chain_result["intermediate_steps"] = intermediate_steps
-        print({"answer": chain_result["result"],
-                "csv_file": csv_file,
-                "sql_result": sql_result,
-                "sql_cmd": sql_cmd,
-                })
-
+        chain_result["result"] = replace_text(chain_result["result"])
+        #print({"answer": chain_result["result"],
+        #        "csv_file": csv_file,
+        #        "sql_result": sql_result,
+        #        "sql_cmd": sql_cmd,
+        #        })
         return {"answer": chain_result["result"],
                 "csv_file": csv_file,
                 "sql_result": sql_result,

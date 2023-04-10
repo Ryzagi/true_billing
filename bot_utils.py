@@ -1,6 +1,7 @@
 from datetime import datetime
 import re
 
+
 def format_date(text):
     # Define the possible date formats
     date_formats = ["%m/%d/%y", "%m/%d/%Y", "%d/%m/%y", "%d/%m/%Y", "%m-%d-%Y", "%m-%d-%y"]
@@ -24,3 +25,10 @@ def format_date(text):
                 #print("\n\n", str(e), "\n\n")
 
     return text
+
+
+def replace_text(input_str):
+    replace_list = ['attending_provider_id', 'attending provider id', 'provider_id', 'provider id']
+    for text in replace_list:
+        input_str = input_str.replace(text, 'doctor')
+    return input_str
