@@ -29,7 +29,13 @@ def format_date(text):
 
 def replace_text(input_str):
     input_str = re.sub(r'provider id \d+', 'doctor', input_str)
-    replace_list = ['attending_provider_id', 'attending provider id', 'provider_id', 'provider id']
+    replace_list = ['attending_provider_id',
+                    'attending provider id',
+                    'provider_id',
+                    'provider id',
+                    'provider',
+                    'attending provider'
+                    ]
     for text in replace_list:
         input_str = input_str.replace(text, 'doctor')
     return input_str
