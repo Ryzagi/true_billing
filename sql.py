@@ -25,6 +25,8 @@ class SQLConnection:
             **kwargs
     ) -> None:
         encoded_password = urllib.parse.quote_plus(password)
+
+        # build URI string
         self._uri = f"mysql://{user}:{encoded_password}@{host}/{database}"
 
     @classmethod
@@ -35,8 +37,12 @@ class SQLConnection:
         Args:
             file_path: Path to JSON file.
         """
+        # load config file
         data = json.loads(file_path.read_text())
+
+        # create instance with config data
         return cls(**data)
 
     def get_uri(self) -> str:
+        # return the database URI
         return self._uri

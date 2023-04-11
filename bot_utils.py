@@ -22,13 +22,15 @@ def format_date(text):
                 break
             except ValueError as e:
                 pass
-                #print("\n\n", str(e), "\n\n")
 
     return text
 
 
 def replace_text(input_str):
+    # Use regular expression to replace 'provider id' with 'doctor'
     input_str = re.sub(r'provider id \d+', 'doctor', input_str)
+
+    # Create a list of texts to be replaced with 'doctor'
     replace_list = ['attending_provider_id',
                     'attending provider id',
                     'provider_id',
@@ -36,7 +38,12 @@ def replace_text(input_str):
                     'provider',
                     'attending provider'
                     ]
+
+    # Iterate through the list and replace each text with 'doctor' in the input string
     for text in replace_list:
         input_str = input_str.replace(text, 'doctor')
+
+    # Return the modified input string
     return input_str
+
 
